@@ -1,0 +1,51 @@
+<apex:page controller="S3RestController" action="{!listS3Object}">
+<apex:pageMessages />
+<apex:form >
+<table>
+	<thead>
+		<td><input type="checkbox" class="TopChkBox"/></td>
+		<th>アクション</th>
+		<th>key</th>
+		<th>最終更新日</th>
+		<th>サイズ</th>
+		<th>所有者名</th>
+	</thead>
+	<tbody>
+	<apex:repeat value="{!objList}" var="obj">
+		<tr>
+			<td><apex:inputCheckBox value="{!obj.isActionTarget}"/></td>
+			<td>
+				<apex:commandLink action="{!deleteBucketObject}" value="削除">
+					<apex:param name="deleteKey" assignTo="{!deleteKey}" value="{!obj.key}"/>
+				</apex:commandLink>
+			</td>
+			<td><a href="#" onclick="window.open('https://{!bucketName}.s3.amazonaws.com/{!obj.key}',null); return false;">{!obj.key}</a></td>
+			<td>{!obj.lastModified}</td>
+			<td>{!obj.size}</td>
+			<td>{!obj.ownername}</td>
+		</tr>
+	</apex:repeat>
+	</tbody>
+</table>
+<apex:commandButton value="一括削除" action="{!multipleDelete}"/>
+</apex:form>
+
+<form action="https://{!bucketName}.s3.amazonaws.com" method="post" enctype="multipart/form-data">
+	<input type="hidden" name="AWSAccessKeyId" value="{!formKeys.AWSAccessKeyId}"/>
+	<input type="hidden" name="acl" value="public-read"/>
+	<input type="hidden" name="policy" value="{!formKeys.policy}"/>
+	<input type="hidden" name="success_action_redirect" value="{!formKeys.redirectUrl}"/>
+	<input type="hidden" name="signature" value="{!formKeys.formSignature}"/>
+	
+	key: <input type="text" name="key"/><br/>
+	File: <input type="file" name="file"/><br/>
+	<input type="submit" name="sbmt" value="送信"/>
+</form>
+
+<apex:form >
+	key: <apex:inputText value="{!postKey}"/><br/>
+	File: <apex:inputFile value="{!file}"/><br/>
+	<apex:commandButton value="Apexを介して送信！" action="{!postFile}"/>
+</apex:form>
+
+</apex:page>
